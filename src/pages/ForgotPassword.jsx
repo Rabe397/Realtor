@@ -1,14 +1,30 @@
 import React,{useState} from 'react';
 import key from '../assets/photo-1564767609342-620cb19b2357.jpg';
 import { Link } from 'react-router-dom';
+import { sendPasswordResetEmail} from "firebase/auth";
+import {auth} from '../firebase/firebaseConnect';
 import GoogleAuth from '../components/GoogleAuth';
+import { toast } from 'react-toastify';
 
 const ForgotPassword = ()=>{
-    const [email,setEmail] = useState("")
+    const [email,setEmail] = useState("");
 
     const handleChange = (e)=>{
         e.preventDefault();
         setEmail(e.target.value);
+    }
+
+    const sendEmail = async (e)=>{
+        e.preventDefault();
+        try{
+           await sendPasswordResetEmail(auth,email);
+           toast.success("Email was sent");
+        }
+        catch(error){
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            toast.error(`${errorMessage}`);
+        }
     }
     return(
         <section className="bg-green-50 min-h-screen">
@@ -28,7 +44,8 @@ const ForgotPassword = ()=>{
                         </div>
                         <Link to='/sign-in' className='text-red-400'> Sign In instead? </Link>
                     </div>
-                    <button className='bg-blue-600 text-white w-full py-3 my-3 hover:bg-blue-800 transition duration-150 rounded'>
+                    <button className='bg-blue-600 text-white w-full py-3 my-3 hover:bg-blue-800 transition duration-150 rounded' 
+                     onClick={sendEmail}>
                         Send Reset Password 
                     </button>
                     <div className="flex items-center before:border-t before:flex-1 before:border-gray-300 after:border-t 

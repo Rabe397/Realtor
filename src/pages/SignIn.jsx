@@ -1,10 +1,15 @@
 import React, { useState } from 'react';
 import key from '../assets/photo-1564767609342-620cb19b2357.jpg';
-import { Link } from 'react-router-dom';
+import { Link , useNavigate} from 'react-router-dom';
 import {FaEye,FaEyeSlash} from 'react-icons/fa';
+import { signInWithEmailAndPassword} from "firebase/auth";
+import {auth} from '../firebase/firebaseConnect';
 import GoogleAuth from '../components/GoogleAuth';
+import { toast } from 'react-toastify';
+
 
 const SignIn = ()=>{
+    const navigate = useNavigate();
     const [showPass , setShowPass] = useState(false)
     const [formData,setFormData] = useState({
         email: "",
@@ -18,6 +23,22 @@ const SignIn = ()=>{
             ...prevState,
             [e.target.id]: e.target.value,
         }));
+    }
+
+    const signFun = async (e)=>{
+        e.preventDefault();
+        try{
+            const userCredential = await signInWithEmailAndPassword(auth,email,password);
+            const user = userCredential.user;
+            if(user){
+                navigate("/");
+            }
+        }
+        catch(error){
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            toast.error(`${errorMessage}`);
+        }
     }
     return(
         <section className="bg-green-50 min-h-screen">
@@ -40,7 +61,10 @@ const SignIn = ()=>{
                         </div>
                         <Link to='/forgot-password' className='text-red-400'> Forgot password? </Link>
                     </div>
-                    <button className='bg-blue-600 text-white w-full py-3 my-3 hover:bg-blue-800 transition duration-150 rounded'> Sign In </button>
+                    <button className='bg-blue-600 text-white w-full py-3 my-3 hover:bg-blue-800 transition duration-150 
+                    rounded' onClick={signFun}> 
+                        Sign In 
+                    </button>
                     <div className="flex items-center before:border-t before:flex-1 before:border-gray-300 after:border-t after:flex-1 after:border-gray-300">
                       <p className='mx-1 font-500'> OR </p> 
                     </div>
